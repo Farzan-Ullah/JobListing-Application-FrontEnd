@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Register.module.css";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../../apis/auth";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function Register() {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       !formData.email ||
       !formData.password ||
@@ -33,12 +34,10 @@ export default function Register() {
       return;
     }
 
-    alert("User Registered Successfully");
+    await registerUser(formData);
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+  useEffect(() => {}, [formData]);
 
   return (
     <div className={styles.container}>
