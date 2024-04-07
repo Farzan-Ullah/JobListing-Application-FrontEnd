@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { DEFAULT_SKILLS } from "../../utils/constant";
-import { createJobPost } from "../../apis/job";
+import { createJobPost, updateJobPostById } from "../../apis/job";
 import styles from "./JobPost.module.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function JobPost() {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const [stateData] = useState(state?.jobDetails);
   const [formData, setFormData] = useState({
-    companyName: "",
-    logoUrl: "",
-    title: "",
-    description: "",
-    salary: "",
-    location: "",
-    duration: "",
-    locationType: "",
-    skills: [],
-    jobType: "",
-    information: "",
-    about: "",
+    companyName: "" || stateData?.companyName,
+    logoUrl: "" || stateData?.logoUrl,
+    title: "" || stateData?.title,
+    description: "" || stateData?.description,
+    salary: "" || stateData?.salary,
+    location: "" || stateData?.location,
+    duration: "" || stateData?.duration,
+    locationType: "" || stateData?.locationType,
+    skills: stateData?.skills || [],
+    information: "" || stateData?.information,
+    jobType: "" || stateData?.jobType,
+    about: "" || stateData?.about,
   });
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
   };
-
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
 
   const addSkills = (event) => {
     const skill = event.target.value;
@@ -63,8 +63,15 @@ export default function JobPost() {
 
       return;
     }
-    //api call to create job post
+
+    if (state?.edit) {
+      const userId = localStorage.getItem("userId");
+      await updateJobPostById(stateData?._id, formData, userId);
+      navigate("/");
+      return;
+    }
     await createJobPost(formData);
+    navigate("/");
   };
 
   return (
@@ -252,7 +259,7 @@ export default function JobPost() {
         </div>
       </div>
       <button onClick={handleSubmit} className={styles.add}>
-        {/* {state?.edit ? "Edit Job" : "+ Add Job "} */}+ Add Job
+        {state?.edit ? "Edit Job" : "+ Add Job "}
       </button>
       <button className={styles.cancel}>Cancel</button>
     </div>
